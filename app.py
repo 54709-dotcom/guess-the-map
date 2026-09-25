@@ -65,7 +65,7 @@ def init_state(difficulty: str, timer_mode: bool):
 
 
 def next_country():
-    """ดึงประเทศถัดไปจากคิว (สุ่มไม่ซ้ำ) หากคิวหมด -> จบเกม"""
+    """ดึงประเทศถัดไปจากคิว (สุ่มไม่ซ้ำ) หากคิวหมด=จบเกม"""
     queue = st.session_state.get("queue", [])
     if not queue:
         st.session_state.game_over = True
