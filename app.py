@@ -78,9 +78,6 @@ def next_country():
     st.session_state.feedback = None
     st.session_state.feedback_type = None
     st.session_state.start_time = time.time()
-    # เปลี่ยนหมายเลขรอบ เพื่อให้ widget คำตอบ (text_input/selectbox) เป็นค่าว่างใหม่ทุกครั้ง
-    # โดยไม่ต้องไปยุ่งกับ session_state ของ widget เดิมโดยตรง (ซึ่ง Streamlit ไม่อนุญาต
-    # หากมีการสร้าง widget นั้นไปแล้วในรอบสคริปต์เดียวกัน)
     st.session_state.round_id = st.session_state.get("round_id", 0) + 1
 
 
