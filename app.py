@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-app.py
-เกมทายชื่อประเทศจากรูปร่างแผนที่ (Guess The Country)
-รันด้วยคำสั่ง: streamlit run app.py
-"""
-
 import json
 import os
 import random
@@ -22,9 +15,6 @@ from data import (
     get_countries_by_difficulty,
 )
 
-# --------------------------------------------------------------------------
-# ตั้งค่าหน้าเว็บ
-# --------------------------------------------------------------------------
 st.set_page_config(
     page_title="Guess The Country 🌍",
     page_icon="🌍",
@@ -60,9 +50,6 @@ def save_high_scores(scores: dict):
         pass
 
 
-# --------------------------------------------------------------------------
-# จัดการ session state
-# --------------------------------------------------------------------------
 def init_state(difficulty: str, timer_mode: bool):
     pool = get_countries_by_difficulty(difficulty)
     random.shuffle(pool)
@@ -141,10 +128,6 @@ def update_high_score():
         st.session_state.high_scores[diff] = st.session_state.score
         save_high_scores(st.session_state.high_scores)
 
-
-# --------------------------------------------------------------------------
-# วาดรูปร่าง (silhouette) ของประเทศ โดยไม่แสดงชื่อ
-# --------------------------------------------------------------------------
 def render_country_shape(iso3: str):
     fig = px.choropleth(
         locations=[iso3],
@@ -186,10 +169,6 @@ def render_country_shape(iso3: str):
         config={"displayModeBar": False, "scrollZoom": False, "staticPlot": True},
     )
 
-
-# --------------------------------------------------------------------------
-# UI หลัก
-# --------------------------------------------------------------------------
 def main():
     load_css()
 
@@ -199,7 +178,7 @@ def main():
         unsafe_allow_html=True,
     )
 
-    # ---------------- Sidebar: ตั้งค่าเกม ----------------
+    #sidebar
     with st.sidebar:
         st.header("⚙️ ตั้งค่าเกม")
         difficulty = st.radio(
@@ -222,18 +201,17 @@ def main():
         for d in ["Easy", "Medium", "Hard", "All"]:
             st.write(f"{DIFFICULTY_EMOJI.get(d,'🌐')} {d}: **{hs.get(d, 0)}**")
 
-    # ---------------- เริ่มต้นสถานะเกม (ครั้งแรก) ----------------
     if "current_country" not in st.session_state:
         init_state(difficulty, timer_mode)
 
-    # ถ้าผู้ใช้เปลี่ยนระดับความยาก/โหมดจับเวลา ให้เริ่มเกมใหม่อัตโนมัติ
+   #เงื่อนไขเปลี่ยนโหมด
     if (
         st.session_state.get("difficulty") != difficulty
         or st.session_state.get("timer_mode") != timer_mode
     ):
         init_state(difficulty, timer_mode)
 
-    # ---------------- แถวสถิติ ----------------
+    #สถิติเกม
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         st.markdown(
@@ -271,7 +249,7 @@ def main():
         unsafe_allow_html=True,
     )
 
-    # ---------------- จบเกม: แสดงสรุปคะแนน ----------------
+    #gameover
     if st.session_state.get("game_over"):
         acc = (
             round(100 * st.session_state.correct_count / st.session_state.total_played, 1)
@@ -301,7 +279,7 @@ def main():
         st.warning("ไม่พบข้อมูลประเทศ กรุณากด 'เริ่มเกมใหม่'")
         return
 
-    # ---------------- ตัวจับเวลา ----------------
+    #timer
     time_limit = DIFFICULTY_TIME_LIMIT.get(country["difficulty"], 25)
     if st.session_state.timer_mode and not st.session_state.solved:
         st_autorefresh(interval=1000, key="timer_refresh")
@@ -316,12 +294,12 @@ def main():
             handle_timeout()
             st.rerun()
 
-    # ---------------- แสดงรูปร่างแผนที่ ----------------
+    #รูปร่าง
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
     render_country_shape(country["iso3"])
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # ---------------- ข้อความผลลัพธ์ ----------------
+    #feedback
     if st.session_state.feedback:
         css_class = f"feedback-{st.session_state.feedback_type}"
         st.markdown(
@@ -329,7 +307,7 @@ def main():
             unsafe_allow_html=True,
         )
 
-    # ---------------- โซนคำใบ้ ----------------
+    #hint
     hints = build_hints(country)
     with st.expander("💡 ต้องการคำใบ้ไหม?"):
         if st.session_state.hint_level == 0:
@@ -346,7 +324,7 @@ def main():
             st.session_state.hint_level += 1
             st.rerun()
 
-    # ---------------- ช่องตอบคำถาม ----------------
+    #answer
     if not st.session_state.solved:
         round_id = st.session_state.get("round_id", 0)
         with st.form(key=f"answer_form_{round_id}", clear_on_submit=False):
